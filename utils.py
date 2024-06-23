@@ -82,16 +82,16 @@ class Utils:
             return records
         
         
-    def record_generator(self, records) -> object:
-        """
-        Loads records one at a time to avoid memory issues.
+    # def record_generator(self, records) -> object:
+    #     """
+    #     Loads records one at a time to avoid memory issues.
 
-        Args: 
-            records --> list of dictionaries to save as JSON
-        Yields: generator object 
-        """
-        for record in records:
-            yield record
+    #     Args: 
+    #         records --> list of dictionaries to save as JSON
+    #     Yields: generator object 
+    #     """
+    #     for record in records:
+    #         yield record
 
 
     def save_json_line_by_line(self, filename: str, records: list[dict]) -> None:
@@ -109,7 +109,7 @@ class Utils:
         
         try:
             with open(filename, "w") as f:
-                for record in self.record_generator(records):
+                for record in records:
                     json_object = json.dumps(record)
                     f.write(json_object + '\n')
         except IOError as e:
@@ -400,11 +400,21 @@ class Inspect:
         section_ids = self.get_section_id_dict()
         
         # get references id from get_section_id_dict method 
-        references_id = [k for k, v in section_ids.items() if v.lower() == 'references'][0]
+        references_list = [k for k, v in section_ids.items() if v.lower() == 'references']
+        if not references_list:
+            print("References section ID not found.")
+            references_id = 'empty' # Don't use NoneType b/c Elements w/out parent use Nonetype 
+        else:
+            references_id = references_list[0]
         
         # get header id from records 
-        header_id = [record['element_id'] for record in records if record['type'].lower() == 'header'][0]
-        
+        header_list = [record['element_id'] for record in records if record['type'].lower() == 'header']
+        if not header_list:
+            print("Header ID not found.")
+            header_id = 'empty' # Don't use NoneType b/c Elements w/out parent use Nonetype
+        else:
+            header_id = header_list[0]
+
         return header_id, references_id
     
     
